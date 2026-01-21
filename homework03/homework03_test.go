@@ -88,6 +88,43 @@ func TestTask02_2_WithCount(t *testing.T) {
 	}
 }
 
+func TestTask03_01(t *testing.T) {
+	db := testutil.NewTestDB(t, "task_sqlite.db")
+	initUserTable(t, db)
+	p := Post{UserID: 1, Title: "hhh", Content: "good idea2"}
+	if error := db.Create(&p).Error; error != nil {
+		t.Fatalf("create post error:%+v", error)
+	}
+}
+
+func TestTask03_02(t *testing.T) {
+	db := testutil.NewTestDB(t, "task_sqlite.db")
+	//initUserTable(t, db)
+
+	if err := db.Model(&Post{}).Where("id = 1").Update("has_comment", 1).Error; err != nil {
+		t.Fatalf("update hasComemnt error:%+v", err)
+	}
+
+	comments := []Comment{}
+	db.Model(&Comment{}).Where("post_id = ?", 1).Find(&comments)
+	if len(comments) == 0 {
+		t.Fatalf("comment is empty")
+	}
+
+	for _, comment := range comments {
+		db.Delete(&comment)
+	}
+
+	p := Post{}
+	if err := db.Model(&Post{}).Where("id = ?", 1).First(&p).Error; err != nil {
+		t.Fatalf("first error:%+v", err)
+	}
+	t.Logf("after comment delete, post:%+v", p)
+	if p.HasComment {
+		t.Fatalf("update hasComment fail")
+	}
+}
+
 func initUserTable(t *testing.T, db *gorm.DB) {
 	if err := db.AutoMigrate(&User{}, &Comment{}, &Post{}); err != nil {
 		t.Fatalf("AutoMigrate User: %v", err)
