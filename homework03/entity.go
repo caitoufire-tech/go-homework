@@ -3,15 +3,18 @@ package homework03
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type User struct {
-	ID      uint   `gorm:"primaryKey"`
-	Name    string `gorm:"size:64;not null"`
-	Posts   []Post
-	PostNum uint `gorm:"default:0"`
+	ID          uint   `gorm:"primaryKey"`
+	Name        string `gorm:"size:64;not null"`
+	Posts       []Post
+	PostNum     uint   `gorm:"default:0"`
+	Phone       string `gorm:"size:20;default ''"`
+	LastLoginAt time.Time
 }
 
 type Post struct {
